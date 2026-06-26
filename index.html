@@ -2,329 +2,142 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Dispatch Scanner</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
-/* ── TOKENS ─────────────────────────────────────────── */
 :root {
-  --navy:       #1e3a5f;
-  --navy-light: #2a5298;
-  --teal:       #0d9488;
-  --teal-dim:   #0f766e;
-  --amber:      #f59e0b;
-  --red:        #dc2626;
-  --red-light:  #fef2f2;
-  --green:      #16a34a;
-  --green-light:#f0fdf4;
-  --slate-50:   #f8fafc;
-  --slate-100:  #f1f5f9;
-  --slate-200:  #e2e8f0;
-  --slate-500:  #64748b;
-  --slate-700:  #334155;
-  --white:      #ffffff;
-
-  --radius-sm: 6px;
-  --radius:    12px;
-  --radius-lg: 18px;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
-  --shadow:    0 4px 16px rgba(0,0,0,.10);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,.14);
-
-  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --mono: 'Courier New', Courier, monospace;
+  --navy:  #1e3a5f;
+  --teal:  #0d9488;
+  --green: #16a34a;
+  --red:   #dc2626;
+  --amber: #d97706;
+  --bg:    #f1f5f9;
+  --card:  #ffffff;
+  --text:  #1e293b;
+  --muted: #64748b;
+  --border:#e2e8f0;
 }
 
-/* ── RESET ───────────────────────────────────────────── */
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 body {
-  font-family: var(--font);
-  background: var(--slate-100);
-  color: var(--slate-700);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
   min-height: 100vh;
+  padding-bottom: 40px;
 }
 
-/* ── LAYOUT ──────────────────────────────────────────── */
-.app-header {
+/* HEADER */
+.header {
   background: var(--navy);
-  color: var(--white);
-  padding: 14px 24px;
+  color: #fff;
+  padding: 14px 16px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  box-shadow: var(--shadow);
+  align-items: center;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 50;
 }
-.app-header h1 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: .02em;
-}
-.app-header .badge {
-  font-size: .75rem;
+.header h1 { font-size: 1.1rem; font-weight: 700; }
+.sheet-badge {
+  font-size: .72rem;
   background: var(--teal);
   padding: 3px 10px;
-  border-radius: 999px;
+  border-radius: 99px;
   font-weight: 600;
-  letter-spacing: .05em;
 }
 
-.page-body {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 24px 16px 48px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
+/* LAYOUT */
+.page { padding: 14px 12px; display: flex; flex-direction: column; gap: 12px; }
 
-/* ── CARDS ───────────────────────────────────────────── */
+/* CARD */
 .card {
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  background: var(--card);
+  border-radius: 14px;
   overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
 }
-.card-header {
-  padding: 14px 20px;
-  background: var(--slate-50);
-  border-bottom: 1px solid var(--slate-200);
-  font-size: .8rem;
+.card-title {
+  padding: 10px 14px;
+  font-size: .72rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .08em;
-  color: var(--slate-500);
+  color: var(--muted);
+  background: #f8fafc;
+  border-bottom: 1px solid var(--border);
 }
-.card-body { padding: 20px; }
+.card-body { padding: 14px; }
 
-/* ── TABS (marketplace) ──────────────────────────────── */
-.tabs {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-.tab-btn {
-  padding: 14px 10px;
-  border: 2px solid var(--slate-200);
-  border-radius: var(--radius);
-  background: var(--white);
-  font-size: .95rem;
-  font-weight: 600;
+/* MARKETPLACE TABS */
+.mp-tabs { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.mp-tab {
+  padding: 12px 6px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  font-size: .88rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all .15s ease;
-  color: var(--slate-700);
+  text-align: center;
+  transition: all .15s;
+  color: var(--muted);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
-.tab-btn .tab-logo {
-  font-size: 1.5rem;
-  line-height: 1;
-}
-.tab-btn .tab-count {
-  font-size: .72rem;
-  font-weight: 500;
-  color: var(--slate-500);
-}
-.tab-btn:hover { border-color: var(--navy-light); background: var(--slate-50); }
-.tab-btn.active {
-  border-color: var(--navy);
-  background: var(--navy);
-  color: var(--white);
-}
-.tab-btn.active .tab-count { color: rgba(255,255,255,.7); }
+.mp-tab .mp-icon { font-size: 1.4rem; }
+.mp-tab .mp-cnt  { font-size: .68rem; font-weight: 500; }
+.mp-tab.active   { border-color: var(--navy); background: var(--navy); color: #fff; }
+.mp-tab.active .mp-cnt { color: rgba(255,255,255,.7); }
 
-/* ── SCAN INPUT ──────────────────────────────────────── */
-.scan-area {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.scan-mode-row {
-  display: flex;
-  gap: 10px;
-}
+/* MODE TOGGLE */
+.mode-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .mode-btn {
-  flex: 1;
-  padding: 9px;
-  border: 2px solid var(--slate-200);
-  border-radius: var(--radius-sm);
-  background: var(--white);
-  font-size: .82rem;
-  font-weight: 600;
+  padding: 11px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  font-size: .85rem;
+  font-weight: 700;
   cursor: pointer;
-  color: var(--slate-500);
+  color: var(--muted);
   transition: all .15s;
 }
-.mode-btn.active {
-  border-color: var(--teal);
-  color: var(--teal);
-  background: #f0fdfa;
-}
+.mode-btn.active { border-color: var(--teal); color: var(--teal); background: #f0fdfa; }
+
+/* AWB INPUT */
+.input-wrap { position: relative; }
 #awbInput {
   width: 100%;
-  padding: 16px 18px;
-  font-size: 1.3rem;
-  font-family: var(--mono);
-  border: 2px solid var(--slate-200);
-  border-radius: var(--radius);
-  background: var(--slate-50);
+  padding: 14px 16px;
+  font-size: 1.15rem;
+  font-family: 'Courier New', monospace;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: #f8fafc;
   color: var(--navy);
   outline: none;
-  transition: border-color .15s, box-shadow .15s;
-  letter-spacing: .05em;
+  letter-spacing: .04em;
+  transition: border-color .15s;
 }
-#awbInput:focus {
-  border-color: var(--navy);
-  box-shadow: 0 0 0 3px rgba(30,58,95,.12);
-  background: var(--white);
-}
-#awbInput.input-success { border-color: var(--green); }
-#awbInput.input-error   { border-color: var(--red); }
+#awbInput:focus { border-color: var(--navy); background: #fff; }
 
-/* ── STATUS BANNER ───────────────────────────────────── */
-.status-banner {
-  border-radius: var(--radius);
-  padding: 16px 18px;
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  min-height: 68px;
-  transition: background .2s;
-  background: var(--slate-50);
-  border: 1px solid var(--slate-200);
-}
-.status-banner.success { background: var(--green-light); border-color: #bbf7d0; }
-.status-banner.error   { background: var(--red-light);   border-color: #fecaca; }
-.status-banner.warn    { background: #fffbeb;             border-color: #fde68a; }
-.status-banner.info    { background: #eff6ff;             border-color: #bfdbfe; }
-
-.status-icon {
-  font-size: 1.6rem;
-  line-height: 1;
-  flex-shrink: 0;
-}
-.status-text .label {
-  font-size: .72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: var(--slate-500);
-  margin-bottom: 2px;
-}
-.status-text .value {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--slate-700);
-  font-family: var(--mono);
-  word-break: break-all;
-}
-.status-text .sub {
-  font-size: .8rem;
-  color: var(--slate-500);
-  margin-top: 2px;
-}
-
-/* ── STATS ROW ───────────────────────────────────────── */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-}
-.stat-card {
-  background: var(--slate-50);
-  border: 1px solid var(--slate-200);
-  border-radius: var(--radius);
-  padding: 16px;
-  text-align: center;
-}
-.stat-card .stat-val {
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--navy);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-.stat-card .stat-label {
-  font-size: .72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  color: var(--slate-500);
-  margin-top: 4px;
-}
-.stat-card.highlight-today .stat-val { color: var(--teal); }
-.stat-card.highlight-cancel .stat-val { color: var(--red); }
-
-/* ── MARKETPLACE BREAKDOWN ───────────────────────────── */
-.mp-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--slate-100);
-}
-.mp-row:last-child { border-bottom: none; }
-.mp-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 600;
-  font-size: .95rem;
-}
-.mp-dot {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-}
-.dot-meesho   { background: #ee4d2d; }
-.dot-flipkart { background: #2874f0; }
-.dot-amazon   { background: #ff9900; }
-.mp-right {
-  display: flex;
-  gap: 18px;
-  font-size: .88rem;
-}
-.mp-right span { color: var(--slate-500); }
-.mp-right strong { color: var(--slate-700); margin-left: 4px; }
-
-/* ── PROGRESS BAR ────────────────────────────────────── */
-.progress-bar-wrap {
-  background: var(--slate-100);
-  border-radius: 999px;
-  height: 6px;
-  margin-top: 14px;
-  overflow: hidden;
-  display: flex;
-  gap: 2px;
-}
-.progress-segment {
-  height: 100%;
-  transition: width .5s ease;
-  border-radius: 999px;
-}
-
-/* ── FOOTER NOTE ─────────────────────────────────────── */
-.footer-note {
-  text-align: center;
-  font-size: .75rem;
-  color: var(--slate-500);
-  padding: 12px 0;
-}
-
-/* ── CAMERA SCAN BUTTON ──────────────────────────────── */
+/* CAMERA BUTTON */
 #cameraBtn {
   width: 100%;
+  margin-top: 10px;
   padding: 13px;
-  border: 2px dashed var(--slate-200);
-  border-radius: var(--radius);
-  background: var(--slate-50);
-  font-size: .92rem;
-  font-weight: 600;
-  color: var(--slate-500);
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  background: #f8fafc;
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--muted);
   cursor: pointer;
   transition: all .15s;
   display: flex;
@@ -332,646 +145,468 @@ body {
   justify-content: center;
   gap: 8px;
 }
-#cameraBtn:hover {
-  border-color: var(--teal);
-  color: var(--teal);
-  background: #f0fdfa;
-}
-#cameraBtn.scanning {
-  border-color: var(--teal);
-  color: var(--teal);
-  background: #f0fdfa;
-}
+#cameraBtn.active { border-color: var(--teal); color: var(--teal); background: #f0fdfa; }
 
-/* ── CAMERA MODAL ────────────────────────────────────── */
-#cameraModal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.85);
-  z-index: 300;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-#cameraModal.show { display: flex; }
-
-.camera-modal-inner {
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
+/* CAMERA AREA */
+#cameraArea { display: none; margin-top: 10px; border-radius: 10px; overflow: hidden; background: #000; }
+#cameraArea.show { display: block; }
+#cameraReader { width: 100%; }
+#cameraReader video { width: 100% !important; height: auto !important; display: block; }
+#cameraReader img, #cameraReader select, #cameraReader button { display: none !important; }
+.cam-stop-btn {
   width: 100%;
-  max-width: 420px;
-  box-shadow: var(--shadow-lg);
-}
-.camera-modal-header {
-  background: var(--navy);
-  color: var(--white);
-  padding: 14px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-weight: 700;
-  font-size: .95rem;
-}
-.camera-close-btn {
-  background: rgba(255,255,255,.15);
-  border: 1.5px solid rgba(255,255,255,.3);
-  color: var(--white);
-  font-size: .85rem;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 6px 14px;
-  border-radius: 8px;
-  transition: background .15s;
-}
-.camera-close-btn:hover { background: rgba(255,255,255,.28); }
-
-.camera-viewport-wrap {
-  background: #000;
-  width: 100%;
-  min-height: 240px;
-  overflow: hidden;
-}
-/* html5-qrcode injects its own video — just make sure it fills the box */
-#cameraReader {
-  width: 100%;
-}
-#cameraReader video {
-  width: 100% !important;
-  height: auto !important;
-  display: block;
-}
-/* hide the html5-qrcode default UI clutter we don't need */
-#cameraReader img,
-#cameraReader select { display: none !important; }
-
-#cameraStatusText {
-  padding: 10px 18px;
-  font-size: .88rem;
-  font-weight: 600;
-  text-align: center;
-  min-height: 40px;
-  color: var(--teal);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.camera-action-btn {
-  flex: 1;
   padding: 11px;
+  background: #fee2e2;
   border: none;
-  border-radius: var(--radius-sm);
-  font-size: .9rem;
-  font-weight: 600;
+  border-top: 1px solid #fecaca;
+  font-size: .88rem;
+  font-weight: 700;
+  color: var(--red);
   cursor: pointer;
-  transition: opacity .15s;
 }
-.start-btn { background: var(--teal); color: var(--white); }
-.stop-btn  { background: var(--slate-200); color: var(--slate-700); }
-.camera-hint {
-  padding: 10px 18px 14px;
-  font-size: .78rem;
-  color: var(--slate-500);
+
+/* STATUS BANNER */
+.status-box {
+  padding: 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: #f8fafc;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  min-height: 64px;
+  transition: background .2s, border-color .2s;
+}
+.status-box.success { background: #f0fdf4; border-color: #86efac; }
+.status-box.error   { background: #fef2f2; border-color: #fca5a5; }
+.status-box.warn    { background: #fffbeb; border-color: #fcd34d; }
+.status-box.info    { background: #eff6ff; border-color: #93c5fd; }
+.s-icon { font-size: 1.5rem; flex-shrink: 0; line-height: 1; }
+.s-body .s-title { font-size: .95rem; font-weight: 700; }
+.s-body .s-sub   { font-size: .78rem; color: var(--muted); margin-top: 2px; font-family: 'Courier New', monospace; word-break: break-all; }
+
+/* LAST SCAN */
+.last-scan-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .8rem;
+  color: var(--muted);
+  padding: 8px 14px 0;
+}
+.last-scan-row strong { font-family: monospace; color: var(--navy); }
+
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.stat {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 8px;
   text-align: center;
 }
-
-/* ── LOADING OVERLAY ─────────────────────────────────── */
-#loadingOverlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(255,255,255,.7);
-  z-index: 200;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  font-weight: 600;
+.stat .val {
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1;
   color: var(--navy);
-  gap: 12px;
 }
-#loadingOverlay.show { display: flex; }
-.spinner {
-  width: 22px; height: 22px;
-  border: 3px solid var(--slate-200);
-  border-top-color: var(--navy);
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+.stat .lbl { font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-top: 3px; }
+.stat.s-today .val   { color: var(--teal); }
+.stat.s-cancel .val  { color: var(--red); }
 
-/* ── RESPONSIVE ──────────────────────────────────────── */
-@media (max-width: 520px) {
-  .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .stat-card .stat-val { font-size: 1.5rem; }
-  #awbInput { font-size: 1.1rem; }
+/* BREAKDOWN */
+.mp-breakdown { display: flex; flex-direction: column; gap: 0; }
+.mp-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: .88rem;
 }
+.mp-line:last-child { border-bottom: none; }
+.mp-name { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.dot { width: 9px; height: 9px; border-radius: 50%; }
+.d-m { background: #ee4d2d; }
+.d-f { background: #2874f0; }
+.d-a { background: #ff9900; }
+.mp-nums { display: flex; gap: 14px; font-size: .8rem; color: var(--muted); }
+.mp-nums strong { color: var(--text); margin-left: 3px; }
 
+/* PROGRESS */
+.prog-wrap {
+  height: 6px; border-radius: 99px;
+  background: var(--border);
+  overflow: hidden;
+  display: flex;
+  margin-top: 12px;
+  gap: 2px;
+}
+.prog-seg { height: 100%; border-radius: 99px; transition: width .4s ease; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="app-header">
+<div class="header">
   <h1>📦 Dispatch Scanner</h1>
-  <span class="badge" id="sheetBadge">Loading…</span>
-</header>
+  <span class="sheet-badge" id="sheetBadge">Loading…</span>
+</div>
 
-<!-- LOADING OVERLAY -->
-<div id="loadingOverlay"><div class="spinner"></div> Saving…</div>
+<div class="page">
 
-<main class="page-body">
-
-  <!-- MARKETPLACE SELECT -->
+  <!-- MARKETPLACE -->
   <div class="card">
-    <div class="card-header">Select Marketplace</div>
+    <div class="card-title">Marketplace</div>
     <div class="card-body">
-      <div class="tabs">
-        <button class="tab-btn active" data-mp="Meesho" onclick="setMarketplace('Meesho', this)">
-          <span class="tab-logo">🛍️</span>
+      <div class="mp-tabs">
+        <button class="mp-tab active" onclick="setMP('Meesho',this)">
+          <span class="mp-icon">🛍️</span>
           Meesho
-          <span class="tab-count" id="count-today-Meesho">0 today</span>
+          <span class="mp-cnt" id="tc-Meesho">0 today</span>
         </button>
-        <button class="tab-btn" data-mp="Flipkart" onclick="setMarketplace('Flipkart', this)">
-          <span class="tab-logo">🛒</span>
+        <button class="mp-tab" onclick="setMP('Flipkart',this)">
+          <span class="mp-icon">🛒</span>
           Flipkart
-          <span class="tab-count" id="count-today-Flipkart">0 today</span>
+          <span class="mp-cnt" id="tc-Flipkart">0 today</span>
         </button>
-        <button class="tab-btn" data-mp="Amazon" onclick="setMarketplace('Amazon', this)">
-          <span class="tab-logo">📦</span>
+        <button class="mp-tab" onclick="setMP('Amazon',this)">
+          <span class="mp-icon">📦</span>
           Amazon
-          <span class="tab-count" id="count-today-Amazon">0 today</span>
+          <span class="mp-cnt" id="tc-Amazon">0 today</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- SCAN BOX -->
+  <!-- SCAN -->
   <div class="card">
-    <div class="card-header">Scan AWB Barcode</div>
+    <div class="card-title">Scan AWB</div>
     <div class="card-body">
-      <div class="scan-area">
 
-        <div class="scan-mode-row">
-          <button class="mode-btn active" id="modeDispatch" onclick="setMode('dispatch')">
-            ✅ Dispatch Mode
-          </button>
-          <button class="mode-btn" id="modeCancel" onclick="setMode('cancel')">
-            ❌ Cancel Mode
-          </button>
-        </div>
+      <!-- Mode -->
+      <div class="mode-row" style="margin-bottom:10px;">
+        <button class="mode-btn active" id="modeDispatch" onclick="setMode('dispatch')">✅ Dispatch</button>
+        <button class="mode-btn"        id="modeCancel"   onclick="setMode('cancel')">❌ Cancel</button>
+      </div>
 
-        <input
-          type="text"
-          id="awbInput"
-          placeholder="Scan or type AWB number…"
-          autocomplete="off"
-          autofocus
-        >
+      <!-- Keyboard input -->
+      <input type="text" id="awbInput" placeholder="Scan / type AWB here…" autocomplete="off">
 
-        <button id="cameraBtn" onclick="openCamera()">
-          📷 Scan with Camera
-        </button>
+      <!-- Camera button -->
+      <button id="cameraBtn" onclick="toggleCamera()">📷 Scan with Camera</button>
 
-        <div class="status-banner" id="statusBanner">
-          <div class="status-icon">📷</div>
-          <div class="status-text">
-            <div class="label">Status</div>
-            <div class="value" id="statusValue">Waiting for scan…</div>
-            <div class="sub" id="statusSub">Point barcode scanner at the shipping label</div>
+      <!-- Camera viewer (inline, no modal) -->
+      <div id="cameraArea">
+        <div id="cameraReader"></div>
+        <button class="cam-stop-btn" onclick="stopCamera()">■ Stop Camera</button>
+      </div>
+
+      <!-- Status -->
+      <div style="margin-top:10px;">
+        <div class="status-box" id="statusBox">
+          <div class="s-icon">📷</div>
+          <div class="s-body">
+            <div class="s-title" id="sTitle">Waiting for scan…</div>
+            <div class="s-sub"   id="sSub">Select marketplace then scan</div>
           </div>
         </div>
-
-        <div style="display:flex; align-items:center; gap:8px; font-size:.82rem; color:var(--slate-500);">
-          <span>Last scanned AWB:</span>
-          <strong id="lastAWB" style="font-family:var(--mono); color:var(--navy);">—</strong>
+        <div class="last-scan-row">
+          Last: <strong id="lastAWB">—</strong>
         </div>
-
       </div>
+
     </div>
   </div>
 
-  <!-- STATS -->
+  <!-- DASHBOARD -->
   <div class="card">
-    <div class="card-header">Dashboard</div>
+    <div class="card-title">Dashboard</div>
     <div class="card-body">
 
       <div class="stats-grid">
-        <div class="stat-card highlight-today">
-          <div class="stat-val" id="statToday">0</div>
-          <div class="stat-label">Today</div>
+        <div class="stat s-today">
+          <div class="val" id="dToday">0</div>
+          <div class="lbl">Today</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-val" id="statMonth">0</div>
-          <div class="stat-label">This Month</div>
+        <div class="stat">
+          <div class="val" id="dMonth">0</div>
+          <div class="lbl">Month</div>
         </div>
-        <div class="stat-card highlight-cancel">
-          <div class="stat-val" id="statCancelled">0</div>
-          <div class="stat-label">Cancelled</div>
+        <div class="stat s-cancel">
+          <div class="val" id="dCancel">0</div>
+          <div class="lbl">Cancelled</div>
         </div>
       </div>
 
-      <div style="margin-top:20px;">
-        <div style="font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--slate-500); margin-bottom:12px;">
-          Month Breakdown
+      <div class="mp-breakdown" style="margin-top:14px;">
+        <div class="mp-line">
+          <div class="mp-name"><div class="dot d-m"></div>Meesho</div>
+          <div class="mp-nums">Today<strong id="mt-Meesho">0</strong> Month<strong id="mm-Meesho">0</strong></div>
         </div>
-
-        <div class="mp-row">
-          <div class="mp-left">
-            <div class="mp-dot dot-meesho"></div> Meesho
-          </div>
-          <div class="mp-right">
-            <span>Today <strong id="mp-today-Meesho">0</strong></span>
-            <span>Month <strong id="mp-month-Meesho">0</strong></span>
-          </div>
+        <div class="mp-line">
+          <div class="mp-name"><div class="dot d-f"></div>Flipkart</div>
+          <div class="mp-nums">Today<strong id="mt-Flipkart">0</strong> Month<strong id="mm-Flipkart">0</strong></div>
         </div>
-        <div class="mp-row">
-          <div class="mp-left">
-            <div class="mp-dot dot-flipkart"></div> Flipkart
-          </div>
-          <div class="mp-right">
-            <span>Today <strong id="mp-today-Flipkart">0</strong></span>
-            <span>Month <strong id="mp-month-Flipkart">0</strong></span>
-          </div>
+        <div class="mp-line">
+          <div class="mp-name"><div class="dot d-a"></div>Amazon</div>
+          <div class="mp-nums">Today<strong id="mt-Amazon">0</strong> Month<strong id="mm-Amazon">0</strong></div>
         </div>
-        <div class="mp-row">
-          <div class="mp-left">
-            <div class="mp-dot dot-amazon"></div> Amazon
-          </div>
-          <div class="mp-right">
-            <span>Today <strong id="mp-today-Amazon">0</strong></span>
-            <span>Month <strong id="mp-month-Amazon">0</strong></span>
-          </div>
-        </div>
-
-        <div class="progress-bar-wrap" id="progressBar">
-          <div class="progress-segment" style="background:#ee4d2d; width:33%"></div>
-          <div class="progress-segment" style="background:#2874f0; width:33%"></div>
-          <div class="progress-segment" style="background:#ff9900; width:33%"></div>
-        </div>
-
       </div>
+
+      <div class="prog-wrap">
+        <div class="prog-seg" id="pg-m" style="background:#ee4d2d;width:33%"></div>
+        <div class="prog-seg" id="pg-f" style="background:#2874f0;width:33%"></div>
+        <div class="prog-seg" id="pg-a" style="background:#ff9900;width:34%"></div>
+      </div>
+
     </div>
   </div>
 
-</main>
-
-<!-- CAMERA MODAL -->
-<div id="cameraModal">
-  <div class="camera-modal-inner">
-    <div class="camera-modal-header">
-      <span>📷 Camera Scanner</span>
-      <button class="camera-close-btn" id="cameraCloseBtn">✕ Close</button>
-    </div>
-    <div class="camera-viewport-wrap">
-      <div id="cameraReader"></div>
-    </div>
-    <div id="cameraStatusText">Tap Start Camera below</div>
-    <div style="padding:0 14px 14px; display:flex; gap:10px;">
-      <button class="camera-action-btn start-btn" id="camStartBtn">▶ Start Camera</button>
-      <button class="camera-action-btn stop-btn"  id="camStopBtn" style="display:none">■ Stop</button>
-    </div>
-    <div class="camera-hint">Hold the barcode steady inside the viewfinder</div>
-  </div>
-</div>
-
-<div class="footer-note" id="footerNote">
-  Dispatch Scanner · <span id="currentSheet">—</span>
-</div>
+</div><!-- /page -->
 
 <script>
+// ── CONFIG ────────────────────────────────────────────
+const SCRIPT_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL";
 
-// ════════════════════════════════════════════════════════
-//  CONFIG — paste your deployed Apps Script URL here
-// ════════════════════════════════════════════════════════
-const APPS_SCRIPT_URL = process.env.MYURL;
-
-// ════════════════════════════════════════════════════════
-//  STATE
-// ════════════════════════════════════════════════════════
+// ── STATE ─────────────────────────────────────────────
 let marketplace = "Meesho";
-let scanMode    = "dispatch";   // "dispatch" | "cancel"
-let dashboard   = {
-  today: 0,
-  month: 0,
-  cancelled: 0,
-  marketplace:      { Meesho:0, Flipkart:0, Amazon:0 },
-  todayMarketplace: { Meesho:0, Flipkart:0, Amazon:0 }
-};
+let scanMode    = "dispatch";
+let db = { today:0, month:0, cancelled:0,
+           marketplace:{Meesho:0,Flipkart:0,Amazon:0},
+           todayMarketplace:{Meesho:0,Flipkart:0,Amazon:0} };
 
-// ════════════════════════════════════════════════════════
-//  MARKETPLACE + MODE
-// ════════════════════════════════════════════════════════
-function setMarketplace(name, btn) {
+// ── MARKETPLACE ───────────────────────────────────────
+function setMP(name, btn) {
   marketplace = name;
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".mp-tab").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
-  refocusInput();
+  focus();
 }
 
+// ── MODE ──────────────────────────────────────────────
 function setMode(mode) {
   scanMode = mode;
   document.getElementById("modeDispatch").classList.toggle("active", mode === "dispatch");
   document.getElementById("modeCancel").classList.toggle("active",   mode === "cancel");
-
-  const input = document.getElementById("awbInput");
-  input.placeholder = mode === "cancel"
-    ? "Scan AWB to CANCEL dispatch…"
-    : "Scan or type AWB number…";
-  refocusInput();
+  document.getElementById("awbInput").placeholder =
+    mode === "cancel" ? "Scan AWB to CANCEL…" : "Scan / type AWB here…";
+  focus();
 }
 
-function refocusInput() {
-  setTimeout(() => document.getElementById("awbInput").focus(), 50);
-}
-
-// ════════════════════════════════════════════════════════
-//  AWB INPUT — fires on Enter
-// ════════════════════════════════════════════════════════
+// ── KEYBOARD INPUT ────────────────────────────────────
 document.getElementById("awbInput").addEventListener("keydown", async function(e) {
   if (e.key !== "Enter") return;
-
   const awb = this.value.trim();
   if (!awb) return;
-
   this.value = "";
-  document.getElementById("lastAWB").textContent = awb;
-
-  if (scanMode === "dispatch") {
-    await doSave(awb);
-  } else {
-    await doCancel(awb);
-  }
+  await handleAWB(awb);
 });
 
-// ════════════════════════════════════════════════════════
-//  API CALLS
-// ════════════════════════════════════════════════════════
-async function doSave(awb) {
-  showLoading(true);
+function focus() {
+  setTimeout(() => document.getElementById("awbInput").focus(), 80);
+}
+
+// ── CAMERA ────────────────────────────────────────────
+let qr = null;
+let qrOn = false;
+let lastScan = null;
+
+function toggleCamera() {
+  if (qrOn) {
+    stopCamera();
+  } else {
+    startCamera();
+  }
+}
+
+async function startCamera() {
+  const area = document.getElementById("cameraArea");
+  const btn  = document.getElementById("cameraBtn");
+
+  area.classList.add("show");
+  btn.classList.add("active");
+  btn.textContent = "📷 Camera ON";
+
+  setStatus("", "📷", "Starting camera…", "");
+
   try {
-    const res = await fetch(APPS_SCRIPT_URL, {
+    if (!qr) qr = new Html5Qrcode("cameraReader");
+
+    const cameras = await Html5Qrcode.getCameras();
+    if (!cameras || !cameras.length) throw new Error("No camera found on this device");
+
+    const cam = cameras.find(c => /back|rear|environment/i.test(c.label))
+             || cameras[cameras.length - 1];
+
+    await qr.start(
+      cam.id,
+      { fps: 12, qrbox: { width: 280, height: 110 } },
+      onCamScan,
+      () => {}
+    );
+
+    qrOn = true;
+    setStatus("", "📷", "Point at barcode…", "Camera is live");
+
+  } catch(err) {
+    setStatus("error", "❌", "Camera failed", err.message);
+    stopCamera();
+  }
+}
+
+async function stopCamera() {
+  if (qr && qrOn) {
+    try { await qr.stop(); } catch {}
+    try { qr.clear(); }      catch {}
+    qr = null;
+  }
+  qrOn = false;
+
+  const area = document.getElementById("cameraArea");
+  const btn  = document.getElementById("cameraBtn");
+  area.classList.remove("show");
+  btn.classList.remove("active");
+  btn.textContent = "📷 Scan with Camera";
+
+  focus();
+}
+
+async function onCamScan(text) {
+  const awb = text.trim();
+  if (awb === lastScan) return;
+  lastScan = awb;
+  setTimeout(() => { lastScan = null; }, 3000);
+
+  beep();
+  if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+
+  await handleAWB(awb);
+  setTimeout(() => {
+    if (qrOn) setStatus("", "📷", "Ready — next barcode…", "");
+  }, 1500);
+}
+
+// ── SAVE / CANCEL ─────────────────────────────────────
+async function handleAWB(awb) {
+  document.getElementById("lastAWB").textContent = awb;
+  setStatus("", "⏳", "Saving…", awb);
+
+  if (scanMode === "dispatch") await doSave(awb);
+  else                          await doCancel(awb);
+}
+
+async function doSave(awb) {
+  try {
+    const res  = await fetch(SCRIPT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "save", awb, marketplace })
+      body: JSON.stringify({ action:"save", awb, marketplace }),
+      redirect: "follow"
     });
     const data = await res.json();
 
     if (data.status === "success") {
-      setBanner("success", "✅", "Saved — " + marketplace, "AWB: " + awb);
-      flashInput("input-success");
-      dashboard.today++;
-      dashboard.month++;
-      dashboard.marketplace[marketplace]++;
-      dashboard.todayMarketplace[marketplace]++;
-      updateDashboardUI();
-
+      setStatus("success", "✅", "Saved — " + marketplace, awb);
+      db.today++; db.month++;
+      db.marketplace[marketplace]++;
+      db.todayMarketplace[marketplace]++;
+      renderDB();
     } else if (data.status === "duplicate") {
-      setBanner("warn", "⚠️",
-        "Duplicate AWB",
-        "Already recorded as: " + data.existingStatus
-      );
-      flashInput("input-error");
-
+      setStatus("warn", "⚠️", "Duplicate AWB", "Already: " + data.existingStatus);
     } else {
-      setBanner("error", "❌", "Error", data.message || "Unknown error");
-      flashInput("input-error");
+      setStatus("error", "❌", data.message || "Error", awb);
     }
   } catch {
-    setBanner("error", "🔌", "Connection Error", "Check your network or Apps Script URL");
-    flashInput("input-error");
-  } finally {
-    showLoading(false);
-    refocusInput();
+    setStatus("error", "🔌", "Connection error", "Check URL in script");
   }
 }
 
 async function doCancel(awb) {
-  showLoading(true);
   try {
-    const res = await fetch(APPS_SCRIPT_URL, {
+    const res  = await fetch(SCRIPT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "cancel", awb })
+      body: JSON.stringify({ action:"cancel", awb }),
+      redirect: "follow"
     });
     const data = await res.json();
 
     if (data.status === "cancelled") {
-      setBanner("info", "🚫", "Order Cancelled", "AWB: " + awb);
-      flashInput("input-success");
-      dashboard.cancelled++;
-      if (dashboard.month > 0) dashboard.month--;
-      updateDashboardUI();
-
+      setStatus("info", "🚫", "Cancelled", awb);
+      db.cancelled++;
+      if (db.month > 0) db.month--;
+      renderDB();
     } else if (data.status === "already_cancelled") {
-      setBanner("warn", "⚠️", "Already Cancelled", "This AWB was already cancelled earlier");
-      flashInput("input-error");
-
+      setStatus("warn", "⚠️", "Already cancelled", awb);
     } else {
-      setBanner("error", "❌", data.message || "AWB not found", "Cannot cancel — not dispatched this month");
-      flashInput("input-error");
+      setStatus("error", "❌", data.message || "Not found", awb);
     }
   } catch {
-    setBanner("error", "🔌", "Connection Error", "Check your network or Apps Script URL");
-  } finally {
-    showLoading(false);
-    refocusInput();
+    setStatus("error", "🔌", "Connection error", "Check URL in script");
   }
 }
 
+// ── DASHBOARD ─────────────────────────────────────────
 async function loadDashboard() {
   try {
-    const url = APPS_SCRIPT_URL + "?action=dashboard";
-    const res  = await fetch(url);
+    const res  = await fetch(SCRIPT_URL + "?action=dashboard", { redirect:"follow" });
     const data = await res.json();
     if (data.status === "success") {
-      dashboard = data;
-      updateDashboardUI();
-      const sheet = data.sheetName || "—";
-      document.getElementById("sheetBadge").textContent = sheet;
-      document.getElementById("currentSheet").textContent = sheet;
+      db = data;
+      renderDB();
+      document.getElementById("sheetBadge").textContent = data.sheetName || "—";
     }
   } catch {
     document.getElementById("sheetBadge").textContent = "Offline";
   }
 }
 
-// ════════════════════════════════════════════════════════
-//  UI HELPERS
-// ════════════════════════════════════════════════════════
-function setBanner(type, icon, value, sub) {
-  const banner = document.getElementById("statusBanner");
-  banner.className = "status-banner " + type;
-  banner.querySelector(".status-icon").textContent = icon;
-  document.getElementById("statusValue").textContent = value;
-  document.getElementById("statusSub").textContent   = sub;
-}
+function renderDB() {
+  document.getElementById("dToday").textContent  = db.today     ?? 0;
+  document.getElementById("dMonth").textContent  = db.month     ?? 0;
+  document.getElementById("dCancel").textContent = db.cancelled ?? 0;
 
-function flashInput(cls) {
-  const input = document.getElementById("awbInput");
-  input.classList.add(cls);
-  setTimeout(() => input.classList.remove(cls), 800);
-}
+  const mp = db.marketplace      || {};
+  const mt = db.todayMarketplace || {};
 
-function showLoading(show) {
-  document.getElementById("loadingOverlay").classList.toggle("show", show);
-}
-
-function updateDashboardUI() {
-  document.getElementById("statToday").textContent     = dashboard.today     ?? 0;
-  document.getElementById("statMonth").textContent     = dashboard.month     ?? 0;
-  document.getElementById("statCancelled").textContent = dashboard.cancelled ?? 0;
-
-  const mp  = dashboard.marketplace      || {};
-  const mpT = dashboard.todayMarketplace || {};
-
-  ["Meesho","Flipkart","Amazon"].forEach(name => {
-    document.getElementById("mp-month-" + name).textContent = mp[name]  ?? 0;
-    document.getElementById("mp-today-" + name).textContent = mpT[name] ?? 0;
-    document.getElementById("count-today-" + name).textContent =
-      (mpT[name] ?? 0) + " today";
+  ["Meesho","Flipkart","Amazon"].forEach(n => {
+    document.getElementById("mm-"+n).textContent = mp[n] ?? 0;
+    document.getElementById("mt-"+n).textContent = mt[n] ?? 0;
+    document.getElementById("tc-"+n).textContent = (mt[n] ?? 0) + " today";
   });
 
-  // Progress bar
-  const total = (mp.Meesho||0) + (mp.Flipkart||0) + (mp.Amazon||0) || 1;
-  const segs  = document.querySelectorAll(".progress-segment");
-  segs[0].style.width = ((mp.Meesho   ||0) / total * 100) + "%";
-  segs[1].style.width = ((mp.Flipkart ||0) / total * 100) + "%";
-  segs[2].style.width = ((mp.Amazon   ||0) / total * 100) + "%";
+  const tot = (mp.Meesho||0)+(mp.Flipkart||0)+(mp.Amazon||0) || 1;
+  document.getElementById("pg-m").style.width = ((mp.Meesho  ||0)/tot*100)+"%";
+  document.getElementById("pg-f").style.width = ((mp.Flipkart||0)/tot*100)+"%";
+  document.getElementById("pg-a").style.width = ((mp.Amazon  ||0)/tot*100)+"%";
 }
 
-// ════════════════════════════════════════════════════════
-//  CAMERA SCANNER  (html5-qrcode)
-// ════════════════════════════════════════════════════════
-let html5Qr    = null;
-let qrRunning  = false;
-let lastScanned = null;
-
-function openCamera() {
-  document.getElementById("cameraModal").classList.add("show");
-  document.getElementById("cameraBtn").classList.add("scanning");
+// ── UI HELPERS ────────────────────────────────────────
+function setStatus(type, icon, title, sub) {
+  const box = document.getElementById("statusBox");
+  box.className = "status-box" + (type ? " "+type : "");
+  box.querySelector(".s-icon").textContent = icon;
+  document.getElementById("sTitle").textContent = title;
+  document.getElementById("sSub").textContent   = sub;
 }
 
-document.getElementById("cameraCloseBtn").addEventListener("click", closeCamera);
-document.getElementById("camStartBtn").addEventListener("click", startCamScanner);
-document.getElementById("camStopBtn").addEventListener("click",  stopCamScanner);
-
-// Close on backdrop click
-document.getElementById("cameraModal").addEventListener("click", function(e) {
-  if (e.target === this) closeCamera();
-});
-
-async function startCamScanner() {
-  document.getElementById("cameraStatusText").textContent = "Starting camera…";
-  document.getElementById("camStartBtn").style.display = "none";
-  document.getElementById("camStopBtn").style.display  = "flex";
-
+function beep() {
   try {
-    if (!html5Qr) {
-      html5Qr = new Html5Qrcode("cameraReader");
-    }
-
-    const cameras = await Html5Qrcode.getCameras();
-    if (!cameras || cameras.length === 0) throw new Error("No camera found");
-
-    // Prefer back/rear camera
-    const cam = cameras.find(c =>
-      /back|rear|environment/i.test(c.label)
-    ) || cameras[cameras.length - 1];
-
-    await html5Qr.start(
-      cam.id,
-      { fps: 10, qrbox: { width: 260, height: 120 } },
-      onQrSuccess,
-      () => {} // ignore per-frame errors
-    );
-
-    qrRunning = true;
-    document.getElementById("cameraStatusText").textContent = "Point at barcode…";
-
-  } catch (err) {
-    document.getElementById("cameraStatusText").textContent = "Camera error: " + err.message;
-    document.getElementById("camStartBtn").style.display = "flex";
-    document.getElementById("camStopBtn").style.display  = "none";
-  }
-}
-
-async function stopCamScanner() {
-  if (html5Qr && qrRunning) {
-    try { await html5Qr.stop(); } catch {}
-    qrRunning = false;
-  }
-  document.getElementById("camStartBtn").style.display = "flex";
-  document.getElementById("camStopBtn").style.display  = "none";
-  document.getElementById("cameraStatusText").textContent = "Camera stopped";
-}
-
-async function onQrSuccess(text) {
-  const awb = text.trim();
-
-  // Debounce — ignore same barcode re-read within 3s
-  if (awb === lastScanned) return;
-  lastScanned = awb;
-  setTimeout(() => { lastScanned = null; }, 3000);
-
-  document.getElementById("cameraStatusText").textContent = "⏳ Saving " + awb + "…";
-  document.getElementById("lastAWB").textContent = awb;
-
-  // Vibrate
-  if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
-
-  // Beep
-  try {
-    const actx = new AudioContext();
-    const osc  = actx.createOscillator();
-    const gain = actx.createGain();
-    osc.connect(gain); gain.connect(actx.destination);
+    const ac   = new AudioContext();
+    const osc  = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.connect(gain); gain.connect(ac.destination);
     osc.frequency.value = 880;
-    gain.gain.setValueAtTime(.3, actx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(.001, actx.currentTime + .18);
-    osc.start(); osc.stop(actx.currentTime + .18);
+    gain.gain.setValueAtTime(.3, ac.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001, ac.currentTime + .15);
+    osc.start(); osc.stop(ac.currentTime + .15);
   } catch {}
-
-  // Save
-  if (scanMode === "dispatch") {
-    await doSave(awb);
-  } else {
-    await doCancel(awb);
-  }
-
-  // Show ready again after result
-  setTimeout(() => {
-    if (qrRunning) {
-      document.getElementById("cameraStatusText").textContent = "Ready — point at next barcode…";
-    }
-  }, 1200);
 }
 
-async function closeCamera() {
-  await stopCamScanner();
-
-  // Clear the html5-qrcode DOM so it reinitialises cleanly next time
-  if (html5Qr) {
-    try { html5Qr.clear(); } catch {}
-    html5Qr = null;
-  }
-
-  document.getElementById("cameraModal").classList.remove("show");
-  document.getElementById("cameraBtn").classList.remove("scanning");
-  document.getElementById("cameraStatusText").textContent = "Tap Start Camera below";
-  document.getElementById("camStartBtn").style.display = "flex";
-  document.getElementById("camStopBtn").style.display  = "none";
-
-  refocusInput();
-}
-
-// ════════════════════════════════════════════════════════
-//  INIT
-// ════════════════════════════════════════════════════════
+// ── INIT ──────────────────────────────────────────────
 loadDashboard();
-refocusInput();
-
+focus();
 </script>
 </body>
 </html>
