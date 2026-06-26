@@ -863,43 +863,6 @@ document.getElementById("cameraModal").addEventListener("click", function(e) {
 });
 
 async function startCamScanner() {
-  try {
-    await navigator.mediaDevices.getUserMedia({ video: true });
-
-    document.getElementById("cameraStatusText").textContent =
-      "Starting camera...";
-
-    if (!html5Qr) {
-      html5Qr = new Html5Qrcode("cameraReader");
-    }
-
-    const cameras = await Html5Qrcode.getCameras();
-
-    console.log(cameras);
-
-    if (cameras.length === 0) {
-      throw new Error("No camera detected");
-    }
-
-    const cameraId = cameras[0].id;
-
-    await html5Qr.start(
-      cameraId,
-      {
-        fps: 10,
-        qrbox: { width: 250, height: 100 }
-      },
-      onQrSuccess
-    );
-
-    qrRunning = true;
-
-  } catch (err) {
-    console.error(err);
-    document.getElementById("cameraStatusText").textContent =
-      err.message;
-  }
-}
   document.getElementById("cameraStatusText").textContent = "Starting camera…";
   document.getElementById("camStartBtn").style.display = "none";
   document.getElementById("camStopBtn").style.display  = "flex";
