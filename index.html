@@ -367,7 +367,7 @@ body {
 
 <script>
 // ── CONFIG ────────────────────────────────────────────
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz98sjZYW5EJpa-j8FHLhkVhKiohuD6Xv97KmkuDgPPLZJOYP5zcy8FwPyEMe4JFAvhlQ/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_q2Erpy6a70loUkneX96IMyGA_JthidyVxEtEjXWyGjghFA5XFA5DhqglXNXmpCV3gQ/exec;
 
 // ── STATE ─────────────────────────────────────────────
 let marketplace = "Meesho";
@@ -496,15 +496,22 @@ async function handleAWB(awb) {
   else                          await doCancel(awb);
 }
 
+// POST as form data — required for Apps Script cross-origin
+async function scriptPost(params) {
+  const body = new URLSearchParams(params);
+  const res  = await fetch(SCRIPT_URL, {
+    method:   "POST",
+    body,
+    redirect: "follow"
+  });
+  const text = await res.text();
+  try { return JSON.parse(text); }
+  catch { throw new Error("Bad response: " + text.slice(0, 80)); }
+}
+
 async function doSave(awb) {
   try {
-    const res  = await fetch(SCRIPT_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action:"save", awb, marketplace }),
-      redirect: "follow"
-    });
-    const data = await res.json();
+    const data = await scriptPost({ action:"save", awb, marketplace });
 
     if (data.status === "success") {
       setStatus("success", "✅", "Saved — " + marketplace, awb);
@@ -517,20 +524,14 @@ async function doSave(awb) {
     } else {
       setStatus("error", "❌", data.message || "Error", awb);
     }
-  } catch {
-    setStatus("error", "🔌", "Connection error", "Check URL in script");
+  } catch(err) {
+    setStatus("error", "🔌", "Connection error", err.message);
   }
 }
 
 async function doCancel(awb) {
   try {
-    const res  = await fetch(SCRIPT_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action:"cancel", awb }),
-      redirect: "follow"
-    });
-    const data = await res.json();
+    const data = await scriptPost({ action:"cancel", awb });
 
     if (data.status === "cancelled") {
       setStatus("info", "🚫", "Cancelled", awb);
@@ -542,8 +543,8 @@ async function doCancel(awb) {
     } else {
       setStatus("error", "❌", data.message || "Not found", awb);
     }
-  } catch {
-    setStatus("error", "🔌", "Connection error", "Check URL in script");
+  } catch(err) {
+    setStatus("error", "🔌", "Connection error", err.message);
   }
 }
 
@@ -551,7 +552,8 @@ async function doCancel(awb) {
 async function loadDashboard() {
   try {
     const res  = await fetch(SCRIPT_URL + "?action=dashboard", { redirect:"follow" });
-    const data = await res.json();
+    const text = await res.text();
+    const data = JSON.parse(text);
     if (data.status === "success") {
       db = data;
       renderDB();
