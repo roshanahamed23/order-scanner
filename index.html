@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dispatch Scanner</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/zxing-js/0.21.3/umd/index.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <style>
 
 /* ── TOKENS ─────────────────────────────────────────── */
@@ -341,11 +341,6 @@ body {
   border-color: var(--teal);
   color: var(--teal);
   background: #f0fdfa;
-  animation: pulse-border 1.2s ease-in-out infinite;
-}
-@keyframes pulse-border {
-  0%, 100% { border-color: var(--teal); }
-  50%       { border-color: var(--teal-dim); box-shadow: 0 0 0 4px rgba(13,148,136,.12); }
 }
 
 /* ── CAMERA MODAL ────────────────────────────────────── */
@@ -381,67 +376,37 @@ body {
   font-size: .95rem;
 }
 .camera-close-btn {
-  background: none;
-  border: none;
+  background: rgba(255,255,255,.15);
+  border: 1.5px solid rgba(255,255,255,.3);
   color: var(--white);
-  font-size: 1.4rem;
+  font-size: .85rem;
+  font-weight: 700;
   cursor: pointer;
-  line-height: 1;
-  opacity: .8;
-  padding: 0 4px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  transition: background .15s;
 }
-.camera-close-btn:hover { opacity: 1; }
+.camera-close-btn:hover { background: rgba(255,255,255,.28); }
 
 .camera-viewport-wrap {
-  position: relative;
   background: #000;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  min-height: 240px;
   overflow: hidden;
 }
-#cameraPreview {
+/* html5-qrcode injects its own video — just make sure it fills the box */
+#cameraReader {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+}
+#cameraReader video {
+  width: 100% !important;
+  height: auto !important;
   display: block;
 }
-.scan-reticle {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-}
-.reticle-box {
-  width: 65%;
-  aspect-ratio: 2.5 / 1;
-  border: 2.5px solid rgba(13,148,136,.9);
-  border-radius: 8px;
-  box-shadow: 0 0 0 2000px rgba(0,0,0,.35);
-  position: relative;
-}
-.reticle-line {
-  position: absolute;
-  top: 50%; left: 5%; right: 5%;
-  height: 2px;
-  background: rgba(13,148,136,.8);
-  transform: translateY(-50%);
-  animation: scan-line 1.8s ease-in-out infinite;
-}
-@keyframes scan-line {
-  0%   { top: 20%; opacity: 1; }
-  50%  { top: 80%; opacity: .6; }
-  100% { top: 20%; opacity: 1; }
-}
-.camera-hint {
-  padding: 12px 18px;
-  font-size: .82rem;
-  color: var(--slate-500);
-  text-align: center;
-  background: var(--slate-50);
-  border-top: 1px solid var(--slate-200);
-}
+/* hide the html5-qrcode default UI clutter we don't need */
+#cameraReader img,
+#cameraReader select { display: none !important; }
+
 #cameraStatusText {
   padding: 10px 18px;
   font-size: .88rem;
@@ -449,6 +414,27 @@ body {
   text-align: center;
   min-height: 40px;
   color: var(--teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.camera-action-btn {
+  flex: 1;
+  padding: 11px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.start-btn { background: var(--teal); color: var(--white); }
+.stop-btn  { background: var(--slate-200); color: var(--slate-700); }
+.camera-hint {
+  padding: 10px 18px 14px;
+  font-size: .78rem;
+  color: var(--slate-500);
+  text-align: center;
 }
 
 /* ── LOADING OVERLAY ─────────────────────────────────── */
@@ -636,18 +622,17 @@ body {
   <div class="camera-modal-inner">
     <div class="camera-modal-header">
       <span>📷 Camera Scanner</span>
-      <button class="camera-close-btn" onclick="closeCamera()">✕</button>
+      <button class="camera-close-btn" id="cameraCloseBtn">✕ Close</button>
     </div>
     <div class="camera-viewport-wrap">
-      <video id="cameraPreview" autoplay muted playsinline></video>
-      <div class="scan-reticle">
-        <div class="reticle-box">
-          <div class="reticle-line"></div>
-        </div>
-      </div>
+      <div id="cameraReader"></div>
     </div>
-    <div id="cameraStatusText">Initialising camera…</div>
-    <div class="camera-hint">Hold the barcode inside the green box • Keep steady</div>
+    <div id="cameraStatusText">Tap Start Camera below</div>
+    <div style="padding:0 14px 14px; display:flex; gap:10px;">
+      <button class="camera-action-btn start-btn" id="camStartBtn">▶ Start Camera</button>
+      <button class="camera-action-btn stop-btn"  id="camStopBtn" style="display:none">■ Stop</button>
+    </div>
+    <div class="camera-hint">Hold the barcode steady inside the viewfinder</div>
   </div>
 </div>
 
@@ -660,7 +645,7 @@ body {
 // ════════════════════════════════════════════════════════
 //  CONFIG — paste your deployed Apps Script URL here
 // ════════════════════════════════════════════════════════
-const APPS_SCRIPT_URL = process.env.MYURL;  // <-- REPLACE with your Apps Script URL
+const APPS_SCRIPT_URL = process.env.MYURL;
 
 // ════════════════════════════════════════════════════════
 //  STATE
@@ -857,89 +842,84 @@ function updateDashboardUI() {
 }
 
 // ════════════════════════════════════════════════════════
-//  CAMERA SCANNER  (ZXing)
+//  CAMERA SCANNER  (html5-qrcode)
 // ════════════════════════════════════════════════════════
-let codeReader   = null;
-let cameraActive = false;
+let html5Qr    = null;
+let qrRunning  = false;
+let lastScanned = null;
 
-async function openCamera() {
+function openCamera() {
   document.getElementById("cameraModal").classList.add("show");
   document.getElementById("cameraBtn").classList.add("scanning");
+}
+
+document.getElementById("cameraCloseBtn").addEventListener("click", closeCamera);
+document.getElementById("camStartBtn").addEventListener("click", startCamScanner);
+document.getElementById("camStopBtn").addEventListener("click",  stopCamScanner);
+
+// Close on backdrop click
+document.getElementById("cameraModal").addEventListener("click", function(e) {
+  if (e.target === this) closeCamera();
+});
+
+async function startCamScanner() {
   document.getElementById("cameraStatusText").textContent = "Starting camera…";
+  document.getElementById("camStartBtn").style.display = "none";
+  document.getElementById("camStopBtn").style.display  = "flex";
 
   try {
-    // Lazy-init ZXing reader
-    if (!codeReader) {
-      const hints = new Map();
-      // Prefer back camera on phones
-      hints.set(ZXingBrowser.DecodeHintType?.TRY_HARDER, true);
-      codeReader = new ZXingBrowser.BrowserMultiFormatReader(hints);
+    if (!html5Qr) {
+      html5Qr = new Html5Qrcode("cameraReader");
     }
 
-    cameraActive = true;
+    const cameras = await Html5Qrcode.getCameras();
+    if (!cameras || cameras.length === 0) throw new Error("No camera found");
 
-    const videoEl = document.getElementById("cameraPreview");
+    // Prefer back/rear camera
+    const cam = cameras.find(c =>
+      /back|rear|environment/i.test(c.label)
+    ) || cameras[cameras.length - 1];
 
-    // Get back camera stream
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 } }
-    });
-    videoEl.srcObject = stream;
-    await videoEl.play();
+    await html5Qr.start(
+      cam.id,
+      { fps: 10, qrbox: { width: 260, height: 120 } },
+      onQrSuccess,
+      () => {} // ignore per-frame errors
+    );
 
+    qrRunning = true;
     document.getElementById("cameraStatusText").textContent = "Point at barcode…";
 
-    // Decode loop
-    decodeLoop(videoEl);
-
   } catch (err) {
-    document.getElementById("cameraStatusText").textContent =
-      "Camera error: " + (err.message || err);
-    document.getElementById("cameraBtn").classList.remove("scanning");
+    document.getElementById("cameraStatusText").textContent = "Camera error: " + err.message;
+    document.getElementById("camStartBtn").style.display = "flex";
+    document.getElementById("camStopBtn").style.display  = "none";
   }
 }
 
-function decodeLoop(videoEl) {
-  if (!cameraActive) return;
-
-  const canvas  = document.createElement("canvas");
-  const ctx     = canvas.getContext("2d");
-
-  const tryDecode = async () => {
-    if (!cameraActive) return;
-
-    if (videoEl.readyState === videoEl.HAVE_ENOUGH_DATA) {
-      canvas.width  = videoEl.videoWidth;
-      canvas.height = videoEl.videoHeight;
-      ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-
-      try {
-        const result = await codeReader.decodeFromCanvas(canvas);
-        if (result && result.getText()) {
-          const awb = result.getText().trim();
-          onBarcodeDetected(awb);
-          return; // stop loop on success
-        }
-      } catch {
-        // no barcode yet — keep trying
-      }
-    }
-
-    if (cameraActive) requestAnimationFrame(tryDecode);
-  };
-
-  requestAnimationFrame(tryDecode);
+async function stopCamScanner() {
+  if (html5Qr && qrRunning) {
+    try { await html5Qr.stop(); } catch {}
+    qrRunning = false;
+  }
+  document.getElementById("camStartBtn").style.display = "flex";
+  document.getElementById("camStopBtn").style.display  = "none";
+  document.getElementById("cameraStatusText").textContent = "Camera stopped";
 }
 
-async function onBarcodeDetected(awb) {
-  // Pause scanning while saving
-  cameraActive = false;
+async function onQrSuccess(text) {
+  const awb = text.trim();
+
+  // Debounce — ignore same barcode re-read within 3s
+  if (awb === lastScanned) return;
+  lastScanned = awb;
+  setTimeout(() => { lastScanned = null; }, 3000);
 
   document.getElementById("cameraStatusText").textContent = "⏳ Saving " + awb + "…";
   document.getElementById("lastAWB").textContent = awb;
 
   // Vibrate
-  if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+  if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
 
   // Beep
   try {
@@ -953,44 +933,38 @@ async function onBarcodeDetected(awb) {
     osc.start(); osc.stop(actx.currentTime + .18);
   } catch {}
 
-  // Save and wait for result
+  // Save
   if (scanMode === "dispatch") {
     await doSave(awb);
   } else {
     await doCancel(awb);
   }
 
-  // Resume scanning after a short pause (so same barcode isn't re-read instantly)
-  await new Promise(r => setTimeout(r, 1500));
-
-  const videoEl = document.getElementById("cameraPreview");
-  if (videoEl.srcObject) {
-    document.getElementById("cameraStatusText").textContent = "Point at next barcode…";
-    cameraActive = true;
-    decodeLoop(videoEl);
-  }
+  // Show ready again after result
+  setTimeout(() => {
+    if (qrRunning) {
+      document.getElementById("cameraStatusText").textContent = "Ready — point at next barcode…";
+    }
+  }, 1200);
 }
 
-function closeCamera() {
-  cameraActive = false;
+async function closeCamera() {
+  await stopCamScanner();
 
-  const videoEl = document.getElementById("cameraPreview");
-  if (videoEl.srcObject) {
-    videoEl.srcObject.getTracks().forEach(t => t.stop());
-    videoEl.srcObject = null;
+  // Clear the html5-qrcode DOM so it reinitialises cleanly next time
+  if (html5Qr) {
+    try { html5Qr.clear(); } catch {}
+    html5Qr = null;
   }
 
   document.getElementById("cameraModal").classList.remove("show");
   document.getElementById("cameraBtn").classList.remove("scanning");
-  document.getElementById("cameraStatusText").textContent = "Initialising camera…";
+  document.getElementById("cameraStatusText").textContent = "Tap Start Camera below";
+  document.getElementById("camStartBtn").style.display = "flex";
+  document.getElementById("camStopBtn").style.display  = "none";
 
   refocusInput();
 }
-
-// Close modal on backdrop click
-document.getElementById("cameraModal").addEventListener("click", function(e) {
-  if (e.target === this) closeCamera();
-});
 
 // ════════════════════════════════════════════════════════
 //  INIT
